@@ -1,10 +1,20 @@
 
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
 #include <iostream>
 #include <vector>
 using namespace std;
-int main(){
-  
-  
+
+vector<int> randomVectorGen(int size, int low, int high) {
+	vector<int> v(size); // creates empty vector of size size 
+	for( int i = 0; i < size; i++ ) {
+		v[i] = rand() % (high - low + 1) + low; // generates random number between low and high then we add low to offset it
+	}
+	return v;
 }
 
 bool isSorted(const vector < int > & L) {
@@ -48,11 +58,11 @@ void insertionSort(vector<int>& arr) {
 
 void selectionSort(vector<int>& arr) {
   // Loop through the array
-  for (size_t i = 0; i < arr.size() - 1; ++i) {
-    size_t minIndex = i;  // Assume the current element is the smallest
+  for (int i = 0; i < arr.size() - 1; ++i) {
+    int minIndex = i;  // Assume the current element is the smallest
 
     // Find the smallest element in the unsorted part
-    for (size_t j = i + 1; j < arr.size(); ++j) {
+    for (int j = i + 1; j < arr.size(); ++j) {
       if (arr[j] < arr[minIndex]) {
         minIndex = j;  // Update the minimum index
       }
@@ -62,38 +72,83 @@ void selectionSort(vector<int>& arr) {
   }
 }
 
-// Function to partition the array (this is used by quicksort)
-int partition(vector<int>& arr, int low, int high) {
-  int pivot = arr[high];  // Choose the last element as the pivot
-  int i = low - 1;        // Acts as a pointer for the smaller elements
-
-  // This will loop through the array to partition it based on the pivot
-  for (int j = low; j < high; ++j) {
+// Partition the array using the first element as the pivot
+int firstElementPartition(vector<int>& arr, int low, int high) {
+  int pivot = arr[low];  // First element as pivot
+  int i = low + 1;
+  for (int j = low + 1; j <= high; ++j) {
     if (arr[j] < pivot) {
+      swap(arr[i], arr[j]);
       ++i;
-      swap(arr[i],
-           arr[j]);  // Move element smaller than pivot to the correct position
     }
   }
-  // Put the pivot in the correct sort
-  swap(arr[i + 1], arr[high]);
-  return i + 1;  // Return the index of said sort
+  swap(arr[low], arr[i - 1]);  // Move pivot to its correct position
+  return i - 1;                // Return the index of the pivot
 }
 
-// Recursive function to implement the Quicksort 
-void quicksort(vector<int>& arr, int low, int high) {
+// Quicksort that uses the first element as the pivot
+void quicksortFirstPivot(vector<int>& arr, int low, int high) {
   if (low < high) {
-    // This will Partition the array and grab the pivot index
-    int pi = partition(arr, low, high);
-
-    // Recursively sort the elements before and after saidpivot
-    quicksort(arr, low, pi - 1);
-    quicksort(arr, pi + 1, high);
+    int pi = firstElementPartition(
+        arr, low, high);  // Partition using first element as pivot
+    quicksortFirstPivot(arr, low, pi - 1);   // Recur for the left subarray
+    quicksortFirstPivot(arr, pi + 1, high);  // Recur for the right subarray
   }
 }
 
-// Function to make it easier to call the quicksort without specifying what's low and high 
+// Wrapper for quicksort with first element as pivot
+void quicksortFirstPivot(vector<int>& arr) {
+  quicksortFirstPivot(arr, 0, arr.size() - 1);
+}
 
-void quicksort(vector<int>& arr) { 
-  quicksort(arr, 0, arr.size() - 1);
+// Runs the experiments for part1
+void sortExperiment(void (*sortFunction)(vector<int>&), const vector<vector<int> >&tenVectors) { // Utilize pointer for the function testing
+	vector<double> sortTimes; // This will hold all the times of the experiments
+	for( int i = 0; i < 2; i++) {
+		vector<int> vec = tenVectors[i];
+		for (int j = 0; j < vec.size(); j++) {
+			cout << vec[j] << ", ";
+		}
+		cout << endl;
+		cout << "================================================================"<< endl; // Looks better
+		sortFunction(vec);
+		if(!isSorted(vec)) {
+			cout << "Failed to sort vector " << endl;
+		}
+		else {
+			for (int c = 0; c < vec.size(); c++) {
+			cout << vec[c] << ", ";
+		}
+		cout << endl;
+				cout << "================================================================"<< endl;
+
+		}
+	}
+
+
+}
+
+void partOneExperiment() { 
+	vector<vector<int> > tenTestVectors; // Vector of test vectors
+		for(int i = 0; i < 10; i++) {
+			tenTestVectors.push_back(randomVectorGen(100, 0, 100)); // Generates 10 test vectors of size 100
+		}
+		//sortExperiment(bubbleSort, tenTestVectors);
+		//sortExperiment(insertionSort, tenTestVectors);
+		sortExperiment(quicksortFirstPivot, tenTestVectors);
+
+}
+
+void partTwoExperiment() { 
+
+}
+
+int main() {
+	srand(time(NULL)); // sets seed for the random number generator
+
+	partOneExperiment();
+
+	partTwoExperiment();
+
+	return 0;
 }
