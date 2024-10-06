@@ -14,93 +14,89 @@ bool isSorted(const vector<int>& L) {
     }
   }
   return true;
-} 
+}
 
-
-vector <int> bubbleSort(vector <int>& L) {
-  bool sorted = false;
-
-  while (!sorted) {
-    sorted = true;
-    for (int i = 1; i < L.size(); ++i) {
-      if (L[i - 1] > L[i]) {
-        // Swap elements
-        int temp = L[i - 1];
-        L[i - 1] = L[i];
-        L[i] = temp;
-        sorted = false;
+// Function to perform Bubble Sort
+void bubbleSort(vector<int>& arr) {
+  // Outer loop to control the number of passes
+  for (int i = 0; i < arr.size() - 1; ++i) {
+    // Inner loop to perform swaps in each pass
+    for (int j = 0; j < arr.size() - i - 1; ++j) {
+      // If the current element is greater than the next one, swap them
+      if (arr[j] > arr[j + 1]) {
+        swap(arr[j], arr[j + 1]);
       }
     }
   }
-
-  return L;
 }
 
-
-vector<int> insertionSort(vector<int>& L) {
-    int i = 1;
-
-    while (i < L.size()) {
-        int j = i;
-        while (j > 0 && L[j] < L[j - 1]) {
-            // Swap elements
-            int temp = L[j - 1];
-            L[j - 1] = L[j];
-            L[j] = temp;
-            j = j - 1;
-        }
-        i = i + 1;
+// Function to perform Insertion Sort
+void insertionSort(vector<int>& arr) {
+  // Start from the second element (index 1)
+  for (int i = 1; i < arr.size(); ++i) {
+    int key = arr[i];  // Element to be placed at the right position
+    int j = i - 1;
+    // Move elements of arr[0..i-1], that are greater than key, to one position
+    // ahead
+    while (j >= 0 && arr[j] > key) {
+      arr[j + 1] = arr[j];  // Shift element to the right
+      --j;
     }
-
-    return L;
+    // Place key in its correct position
+    arr[j + 1] = key;
+  }
 }
 
+// Function to perform Selection Sort
+void selectionSort(vector<int>& arr) {
+  // Loop through the array
+  for (size_t i = 0; i < arr.size() - 1; ++i) {
+    size_t minIndex = i;  // Assume the current element is the smallest
 
-vector<int> selectionSort(vector<int>& L) {
-    for (int i = 0; i < L.size() - 1; ++i) {
-        int uMin = i;  // Assume the current index is the smallest
-        for (int j = i + 1; j < L.size(); ++j) {
-            if (L[j] < L[uMin]) {
-                uMin = j;  // Update the index of the smallest element
-            }
-        }
-        // Swap the smallest element found with the element at index i
-        int temp = L[i];
-        L[i] = L[uMin];
-        L[uMin] = temp;
+    // Find the actual smallest element in the unsorted part
+    for (size_t j = i + 1; j < arr.size(); ++j) {
+      if (arr[j] < arr[minIndex]) {
+        minIndex = j;  // Update the minimum element index
+      }
     }
-
-    return L;
+    // Swap the smallest found element with the first element of the unsorted
+    // region
+    swap(arr[i], arr[minIndex]);
+  }
 }
 
+// Function to partition the array (used by quicksort)
+int partition(vector<int>& arr, int low, int high) {
+  int pivot = arr[high];  // Choose the last element as the pivot
+  int i = low - 1;        // Pointer for the smaller elements
 
-vector<int> quicksort(vector<int> L) {
-    // Base case: If the list has 1 or fewer elements, it's already sorted
-    if (L.size() <= 1) {
-        return L;
+  // Loop through the array to partition it based on the pivot
+  for (int j = low; j < high; ++j) {
+    if (arr[j] < pivot) {
+      ++i;
+      swap(arr[i],
+           arr[j]);  // Move element smaller than pivot to the correct position
     }
+  }
+  // Put the pivot in the correct sort
+  swap(arr[i + 1], arr[high]);
+  return i + 1;  // Return the index of it
+}
 
-    // Choose the pivot (in this case, the first element)
-    int pivot = L[0];
-    vector<int> A;  // Elements less than or equal to pivot
-    vector<int> B;  // Elements greater than pivot
+// Recursive function to implement Quicksort
+void quicksort(vector<int>& arr, int low, int high) {
+  if (low < high) {
+    // Partition the array and get the pivot index
+    int pi = partition(arr, low, high);
 
-    // Partition the list into two sublists A and B
-    for (int i = 1; i < L.size(); ++i) {
-        if (L[i] <= pivot) {
-            A.push_back(L[i]);
-        } else {
-            B.push_back(L[i]);
-        }
-    }
+    // Recursively sort elements before and after the pivot
+    quicksort(arr, low, pi - 1);
+    quicksort(arr, pi + 1, high);
+  }
+}
 
-    // Recursively sort A and B, then concatenate the results with the pivot
-    A = quicksort(A);
-    B = quicksort(B);
-
-    // Concatenate A, pivot, and B
-    A.push_back(pivot);  // Add pivot in the middle
-    A.insert(A.end(), B.begin(), B.end());  // Append B to A
-
-    return A;
+// Wrapper function to make it easier to call quicksort without specifying low
+// and high
+void quicksort(vector<int>& arr) { 
+  quicksort(arr, 0, arr.size() - 1);
 }
