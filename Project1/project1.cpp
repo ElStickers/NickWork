@@ -7,22 +7,22 @@ int main(){
   
 }
 
-bool isSorted(const vector<int>& L) {
+bool isSorted(const vector < int > & L) {
   for (int i = 1; i < L.size(); i++) {
-    if(L[i] < L[i-1]) {
+    // If the current value is smaller than the last, then it isn't sorted
+    if (L[i] < L[i - 1]) {
       return false;
     }
   }
   return true;
 }
 
-// Function to perform Bubble Sort
 void bubbleSort(vector<int>& arr) {
-  // Outer loop to control the number of passes
+  // This handles the number of passes
   for (int i = 0; i < arr.size() - 1; ++i) {
-    // Inner loop to perform swaps in each pass
+    // Perform swaps in each pass
     for (int j = 0; j < arr.size() - i - 1; ++j) {
-      // If the current element is greater than the next one, swap them
+      // If the current element is greater than the next one, then swap them
       if (arr[j] > arr[j + 1]) {
         swap(arr[j], arr[j + 1]);
       }
@@ -30,7 +30,6 @@ void bubbleSort(vector<int>& arr) {
   }
 }
 
-// Function to perform Insertion Sort
 void insertionSort(vector<int>& arr) {
   // Start from the second element (index 1)
   for (int i = 1; i < arr.size(); ++i) {
@@ -47,30 +46,28 @@ void insertionSort(vector<int>& arr) {
   }
 }
 
-// Function to perform Selection Sort
 void selectionSort(vector<int>& arr) {
   // Loop through the array
   for (size_t i = 0; i < arr.size() - 1; ++i) {
     size_t minIndex = i;  // Assume the current element is the smallest
 
-    // Find the actual smallest element in the unsorted part
+    // Find the smallest element in the unsorted part
     for (size_t j = i + 1; j < arr.size(); ++j) {
       if (arr[j] < arr[minIndex]) {
-        minIndex = j;  // Update the minimum element index
+        minIndex = j;  // Update the minimum index
       }
     }
-    // Swap the smallest found element with the first element of the unsorted
-    // region
+    // This will swap the smallest found element with the first element of the unsorted values
     swap(arr[i], arr[minIndex]);
   }
 }
 
-// Function to partition the array (used by quicksort)
+// Function to partition the array (this is used by quicksort)
 int partition(vector<int>& arr, int low, int high) {
   int pivot = arr[high];  // Choose the last element as the pivot
-  int i = low - 1;        // Pointer for the smaller elements
+  int i = low - 1;        // Acts as a pointer for the smaller elements
 
-  // Loop through the array to partition it based on the pivot
+  // This will loop through the array to partition it based on the pivot
   for (int j = low; j < high; ++j) {
     if (arr[j] < pivot) {
       ++i;
@@ -80,23 +77,23 @@ int partition(vector<int>& arr, int low, int high) {
   }
   // Put the pivot in the correct sort
   swap(arr[i + 1], arr[high]);
-  return i + 1;  // Return the index of it
+  return i + 1;  // Return the index of said sort
 }
 
-// Recursive function to implement Quicksort
+// Recursive function to implement the Quicksort 
 void quicksort(vector<int>& arr, int low, int high) {
   if (low < high) {
-    // Partition the array and get the pivot index
+    // This will Partition the array and grab the pivot index
     int pi = partition(arr, low, high);
 
-    // Recursively sort elements before and after the pivot
+    // Recursively sort the elements before and after saidpivot
     quicksort(arr, low, pi - 1);
     quicksort(arr, pi + 1, high);
   }
 }
 
-// Wrapper function to make it easier to call quicksort without specifying low
-// and high
+// Function to make it easier to call the quicksort without specifying what's low and high 
+
 void quicksort(vector<int>& arr) { 
   quicksort(arr, 0, arr.size() - 1);
 }
