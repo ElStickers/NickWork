@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -25,6 +26,30 @@ bool isSorted(const vector < int > & L) {
     }
   }
   return true;
+}
+
+double timeFunction(void (*sortFunction)(vector<int> &), vector<int> & timedVector) {
+  auto start = chrono::high_resolution_clock::now();
+  sortFunction(timedVector);
+  auto end = chrono::high_resolution_clock::now();
+  chrono::duration<double> sortDuration = end - start;
+  return sortDuration.count();
+}
+
+double calculateMean(const vector<double>& sortTimes) {
+  double sum = 0;
+  for(int i = 0; i < sortTimes.size(); i++) {
+    sum += sortTimes[i];
+  }
+  return sum/sortTimes.size();
+}
+
+double calculateSD(const vector<double>& sortTimes, double mean) { 
+  double sum = 0;
+  for(int i = 0; i < sortTimes.size(); i++) {
+    sum += pow(sortTimes[i] - mean, 2);
+  }
+  return sqrt(sum/(sortTimes.size()-1));
 }
 
 void bubbleSort(vector<int>& arr) {
@@ -102,30 +127,34 @@ void quicksortFirstPivot(vector<int>& arr) {
 }
 
 // Runs the experiments for part1
-void sortExperiment(void (*sortFunction)(vector<int>&), const vector<vector<int> >&tenVectors) { // Utilize pointer for the function testing
+void sortExperiment(void (*sortFunction)(vector<int>&), string sortName, const vector<vector<int> >&tenVectors) { // Utilize pointer for the function testing
 	vector<double> sortTimes; // This will hold all the times of the experiments
-	for( int i = 0; i < 2; i++) {
-		vector<int> vec = tenVectors[i];
-		for (int j = 0; j < vec.size(); j++) {
-			cout << vec[j] << ", ";
-		}
-		cout << endl;
-		cout << "================================================================"<< endl; // Looks better
-		sortFunction(vec);
-		if(!isSorted(vec)) {
-			cout << "Failed to sort vector " << endl;
-		}
-		else {
-			for (int c = 0; c < vec.size(); c++) {
-			cout << vec[c] << ", ";
-		}
-		cout << endl;
-				cout << "================================================================"<< endl;
 
-		}
-	}
+  for(int i = 0; i < tenVectors.size(); i++) {
+    vector<int> tempVector = tenVectors[i];
+    double testTimes = timeFunction(sortFunction, tempVector);
 
+    if(!isSorted(tempVector)) {
+      cout << "Error: " << sortName << " failed to sort vector" << i+1 << endl;
+    }
 
+    sortTimes.push_back(testTimes);
+  }
+
+  double minTime = *min_element(sortTimes.begin(), sortTimes.end());
+  double maxTime = *max_element(sortTimes.begin(), sortTimes.end());
+  double mean = calculateMean(sortTimes);
+  double sd = calculateSD(sortTimes, mean);
+
+  cout << fixed << setprecision(6);
+  cout << "********************************" << endl;
+  cout << sortName << " on 10 vectors of length 100" << endl;
+  cout << "Sorting Succesfull" << endl;
+  cout << "Minimum: " << minTime << " sec;" << endl;
+  cout << "Mean: " << mean << " sec;" << endl;
+  cout << "Standard Deviation: " << sd << " sec;" << endl;
+  cout << "Maximum: " << maxTime << " sec;" << endl;
+  cout << "********************************" << endl;
 }
 
 void partOneExperiment() { 
@@ -133,9 +162,10 @@ void partOneExperiment() {
 		for(int i = 0; i < 10; i++) {
 			tenTestVectors.push_back(randomVectorGen(100, 0, 100)); // Generates 10 test vectors of size 100
 		}
-		//sortExperiment(bubbleSort, tenTestVectors);
-		//sortExperiment(insertionSort, tenTestVectors);
-		sortExperiment(quicksortFirstPivot, tenTestVectors);
+		sortExperiment(bubbleSort, "Bubble Sort",tenTestVectors);
+		sortExperiment(insertionSort, "Insertion Sort", tenTestVectors);
+    sortExperiment(selectionSort, "Selection Sort", tenTestVectors);
+		sortExperiment(quicksortFirstPivot, "Quick Sort", tenTestVectors);
 
 }
 
